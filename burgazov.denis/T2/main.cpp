@@ -172,9 +172,8 @@ bool compare(const DataStruct& first, const DataStruct& second) {
 
 int main() {
     std::vector<DataStruct> data;
-    std::ifstream ifs{"data.txt"};
     std::copy(
-        std::istream_iterator<DataStruct>(ifs),
+        std::istream_iterator<DataStruct>(std::cin),
         std::istream_iterator<DataStruct>(),
         std::back_inserter(data)
     );
@@ -189,4 +188,3 @@ int main() {
         std::ostream_iterator<DataStruct>(std::cout, "\n")
     );
 }
-
