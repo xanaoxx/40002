@@ -1,14 +1,14 @@
 //Variant 5. key1 = DBL SCI; key2 = CHR LIT
 #include <iostream>
 #include <algorithm>
-#include <cstring>
+#include <string>
 #include <vector>
 #include <iterator>
 #include <iomanip>
 #include <limits>
 #include <fstream>
 
-struct DataStruct 
+struct DataStruct
 {
     double key1;
     char key2;
@@ -43,7 +43,7 @@ struct KeyNumberIO
 std::istream& operator>>(std::istream& in, DelimiterIO&& dest) {
     std::istream::sentry sentry(in);
     if (!sentry) {
-      return in;
+        return in;
     }
     char temp = '0';
     in >> temp;
@@ -60,7 +60,7 @@ std::istream& operator>>(std::istream& in, KeyNumberIO&& dest)
     {
         return in;
     }
-    in >> DelimiterIO{'k'} >> DelimiterIO{'e'} >> DelimiterIO{'y'} >> dest.ref;
+    in >> DelimiterIO{ 'k' } >> DelimiterIO{ 'e' } >> DelimiterIO{ 'y' } >> dest.ref;
     return in;
 }
 
@@ -71,13 +71,13 @@ std::istream& operator>>(std::istream& in, StringIO&& dest)
     {
         return in;
     }
-    return std::getline(in >> DelimiterIO{'"'}, dest.ref, '"');
+    return std::getline(in >> DelimiterIO{ '"' }, dest.ref, '"');
 }
 
 std::istream& operator>>(std::istream& in, DoubleSciIO&& dest) {
     std::istream::sentry sentry(in);
     if (!sentry) {
-      return in;
+        return in;
     }
     return in >> dest.ref;
 }
@@ -87,19 +87,19 @@ std::istream& operator>>(std::istream& in, CharIO&& dest) {
     if (!sentry) {
         return in;
     }
-    return in >> DelimiterIO{'\''} >> dest.ref >> DelimiterIO{'\''};
+    return in >> DelimiterIO{ '\'' } >> dest.ref >> DelimiterIO{ '\'' };
 }
 
 std::istream& operator>>(std::istream& in, DataStruct& dest) {
     std::istream::sentry sentry(in);
     if (!sentry) {
-      return in;
+        return in;
     }
     DataStruct input;
-    in >> DelimiterIO{'('} >> DelimiterIO{':'};
+    in >> DelimiterIO{ '(' } >> DelimiterIO{ ':' };
     int keyName = 0;
     for (int i = 0; (i < 3) && in; ++i) {
-        in >> KeyNumberIO{keyName};
+        in >> KeyNumberIO{ keyName };
         if (keyName == 1) {
             in >> DoubleSciIO{ input.key1 };
         }
@@ -112,9 +112,9 @@ std::istream& operator>>(std::istream& in, DataStruct& dest) {
         else {
             in.setstate(std::ios::failbit);
         }
-        in >> DelimiterIO{':'};
+        in >> DelimiterIO{ ':' };
     }
-    in >> DelimiterIO{')'};
+    in >> DelimiterIO{ ')' };
     if (in) {
         dest = input;
     }
@@ -130,7 +130,8 @@ public:
         fill_(s.fill()),
         precision_(s.precision()),
         fmt_(s.flags())
-    {}
+    {
+    }
     ~iofmtguard()
     {
         s_.width(width_);
@@ -149,7 +150,7 @@ private:
 std::ostream& operator<<(std::ostream& out, const DataStruct& src) {
     std::ostream::sentry sentry(out);
     if (!sentry) {
-      return out;
+        return out;
     }
     iofmtguard fmtguard(out);
     out << "(:key1 " << std::scientific << std::setprecision(3) << src.key1;
