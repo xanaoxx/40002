@@ -8,6 +8,8 @@
 #include <limits>
 #include <fstream>
 
+const int MAX_STREAM_SIZE = std::numeric_limits<std::streamsize>::max();
+
 struct DataStruct
 {
     double key1;
