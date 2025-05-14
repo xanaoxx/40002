@@ -177,6 +177,9 @@ int main() {
     std::vector<DataStruct> data;
     while (!std::cin.eof())
     {
+        if (!std::cin) {
+            std::cin.clear();
+        }
         std::copy
         (
             std::istream_iterator< DataStruct >(std::cin),
@@ -186,7 +189,6 @@ int main() {
         if (!std::cin)
         {
             std::cin.ignore(MAX_STREAM_SIZE, '\n');
-            std::cin.clear();
         }
     }
     std::sort(
