@@ -155,7 +155,7 @@ std::ostream& operator<<(std::ostream& out, const DataStruct& src) {
         return out;
     }
     iofmtguard fmtguard(out);
-    out << "(:key1 " << std::scientific << std::setprecision(3) << src.key1;
+    out << "(:key1 " << std::scientific << std::setprecision(1) << src.key1;
     out << ":key2 '" << src.key2;
     out << "':key3 \"" << src.key3 << "\":)";
     return out;
