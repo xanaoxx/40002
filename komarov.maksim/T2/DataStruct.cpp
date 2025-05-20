@@ -2,6 +2,9 @@
 #include <sstream>
 #include <iomanip>
 #include <vector>
+#include <string>
+#include <cctype>
+#include <iostream>
 
 namespace max {
 
@@ -33,33 +36,37 @@ static bool parseLine(const std::string& line, DataStruct& tmp) {
     while (std::getline(ss, chunk, ':'))
         if (!chunk.empty())
             parts.push_back(chunk);
-    if (parts.size() != 5 || parts[0] != "(" || parts[4] != ")")
+    if (parts.size() < 5)
         return false;
     try {
-        for (int i = 1; i <= 3; ++i) {
+        bool foundKey1 = false, foundKey2 = false, foundKey3 = false;
+        for (size_t i = 0; i < parts.size(); ++i) {
             std::istringstream ps(parts[i]);
             std::string key; ps >> key;
-            if (key == "key1") {
-                std::string v; ps >> v;
-                if (v.back()!='d' && v.back()!='D') return false;
-                tmp.key1 = std::stod(v.substr(0, v.size()-1));
+            if (key == "key1" && !foundKey1) {
+                std::string val; ps >> val;
+                if (val.back()!='d' && val.back()!='D') return false;
+                tmp.key1 = std::stod(val.substr(0, val.size()-1));
+                foundKey1 = true;
             }
-            else if (key == "key2") {
-                std::string v; ps >> v;
-                if (v.size()<4 ||
-                   (v.substr(v.size()-3)!="ull" &&
-                    v.substr(v.size()-3)!="ULL")) return false;
-                tmp.key2 = std::stoull(v.substr(0, v.size()-3));
+            else if (key == "key2" && !foundKey2) {
+                std::string val; ps >> val;
+                if (val.size()<4 ||
+                   (val.substr(val.size()-3)!="ull" &&
+                    val.substr(val.size()-3)!="ULL"))
+                    return false;
+                tmp.key2 = std::stoull(val.substr(0, val.size()-3));
+                foundKey2 = true;
             }
-            else if (key == "key3") {
-                auto f = parts[i].find('"');
-                auto l = parts[i].rfind('"');
-                if (f==std::string::npos || l==f) return false;
-                tmp.key3 = parts[i].substr(f+1, l-f-1);
+            else if (key == "key3" && !foundKey3) {
+                auto first = parts[i].find('\"');
+                auto last  = parts[i].rfind('\"');
+                if (first==std::string::npos || last==first) return false;
+                tmp.key3 = parts[i].substr(first+1, last-first-1);
+                foundKey3 = true;
             }
-            else
-                return false;
         }
+        if (!(foundKey1 && foundKey2 && foundKey3)) return false;
     } catch(...) {
         return false;
     }
@@ -69,16 +76,13 @@ static bool parseLine(const std::string& line, DataStruct& tmp) {
 std::istream& operator>>(std::istream& in, DataStruct& dst) {
     std::string line;
     while (std::getline(in, line)) {
-        auto b = line.find_first_not_of(" \t\r\n");
-        if (b == std::string::npos) continue;
-        auto e = line.find_last_not_of(" \t\r\n");
-        line = line.substr(b, e-b+1);
         DataStruct tmp;
         if (parseLine(line, tmp)) {
             dst = tmp;
             return in;
         }
     }
+    in.setstate(std::ios::failbit);
     return in;
 }
 
