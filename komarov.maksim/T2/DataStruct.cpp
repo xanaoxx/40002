@@ -1,7 +1,8 @@
 #include "DataStruct.h"
 #include <sstream>
 #include <iomanip>
-#include <vector>
+#include <string>
+#include <cstdlib>
 
 namespace max {
 
@@ -26,63 +27,101 @@ public:
     }
 };
 
-static bool parseLine(const std::string& line, DataStruct& tmp) {
-    std::vector<std::string> parts;
-    std::stringstream ss(line);
-    std::string chunk;
-    while (std::getline(ss, chunk, ':'))
-        if (!chunk.empty())
-            parts.push_back(chunk);
-    if (parts.size() != 5 || parts[0] != "(" || parts[4] != ")")
-        return false;
-    try {
-        for (int i = 1; i <= 3; ++i) {
-            std::istringstream ps(parts[i]);
-            std::string key; ps >> key;
-            if (key == "key1") {
-                std::string val; ps >> val;
-                if (val.back()!='d' && val.back()!='D') return false;
-                tmp.key1 = std::stod(val.substr(0, val.size()-1));
-            }
-            else if (key == "key2") {
-                std::string val; ps >> val;
-                if (val.size()<4 ||
-                   (val.substr(val.size()-3)!="ull" &&
-                    val.substr(val.size()-3)!="ULL"))
-                    return false;
-                tmp.key2 = std::stoull(val.substr(0, val.size()-3));
-            }
-            else if (key == "key3") {
-                auto first = parts[i].find('"');
-                auto last  = parts[i].rfind('"');
-                if (first==std::string::npos || last==first) return false;
-                tmp.key3 = parts[i].substr(first+1, last-first-1);
-            }
-            else return false;
-        }
-    } catch(...) {
-        return false;
-    }
-    return true;
-}
-
 std::istream& operator>>(std::istream& in, DataStruct& dst) {
-    std::string line;
-    while (true) {
-        if (!std::getline(in, line))
-            return in;
-        DataStruct tmp;
-        if (parseLine(line, tmp)) {
-            dst = tmp;
+    std::istream::sentry sent(in);
+    if (!sent) return in;
+    char c;
+    in >> c; if (!in || c != '(')   { in.setstate(std::ios::failbit); return in; }
+    in >> c; if (!in || c != ':')   { in.setstate(std::ios::failbit); return in; }
+    DataStruct tmp;
+    bool f1 = false, f2 = false, f3 = false;
+    for (int field = 1; field <= 3; ++field) {
+        in >> c; if (!in || c != ':') { in.setstate(std::ios::failbit); return in; }
+        char buf[4] = {0};
+        in.read(buf, 3);
+        if (!in || std::string(buf) != "key") {
+            in.setstate(std::ios::failbit);
             return in;
         }
+        in >> c;
+        if (!in || (c < '1' || c > '3')) {
+            in.setstate(std::ios::failbit);
+            return in;
+        }
+        char which = c;
+        in.get(c);
+        if (!in || c != ' ') {
+            in.setstate(std::ios::failbit);
+            return in;
+        }
+        switch (which) {
+            case '1': {
+                std::string tok;
+                std::getline(in, tok, ':');
+                if (tok.empty() || (tok.back()!='d' && tok.back()!='D')) {
+                    in.setstate(std::ios::failbit);
+                    return in;
+                }
+                try {
+                    tmp.key1 = std::stod(tok.substr(0, tok.size()-1));
+                } catch(...) {
+                    in.setstate(std::ios::failbit);
+                    return in;
+                }
+                f1 = true;
+                break;
+            }
+            case '2': {
+                std::string tok;
+                std::getline(in, tok, ':');
+                if (tok.size()<4 ||
+                   (tok.substr(tok.size()-3)!="ull" &&
+                    tok.substr(tok.size()-3)!="ULL")) {
+                    in.setstate(std::ios::failbit);
+                    return in;
+                }
+                try {
+                    tmp.key2 = std::stoull(tok.substr(0, tok.size()-3));
+                } catch(...) {
+                    in.setstate(std::ios::failbit);
+                    return in;
+                }
+                f2 = true;
+                break;
+            }
+            case '3': {
+                in.get(c);
+                if (!in || c != '"') {
+                    in.setstate(std::ios::failbit);
+                    return in;
+                }
+                std::string val;
+                std::getline(in, val, '"');
+                tmp.key3 = val;
+                in.get(c);
+                if (!in || c != ':') {
+                    in.setstate(std::ios::failbit);
+                    return in;
+                }
+                f3 = true;
+                break;
+            }
+        }
     }
+    in >> c;
+    if (!in || c != ')') {
+        in.setstate(std::ios::failbit);
+        return in;
+    }
+    if (f1 && f2 && f3) dst = tmp;
+    else in.setstate(std::ios::failbit);
+    return in;
 }
 
 std::ostream& operator<<(std::ostream& os, DataStruct const& v) {
     std::ostream::sentry sent(os);
     if (!sent) return os;
-    IOfmtGuard g(os);
+    IOfmtGuard guard(os);
     os << "(:key1 "
        << std::fixed << std::setprecision(1) << v.key1 << 'd'
        << ":key2 " << v.key2 << "ull"

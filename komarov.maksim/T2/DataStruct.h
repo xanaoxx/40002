@@ -20,3 +20,4 @@ namespace max {
 } // namespace max
 
 #endif // DATASTRUCT_H
+
