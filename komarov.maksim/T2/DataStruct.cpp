@@ -1,6 +1,7 @@
 #include "DataStruct.h"
 #include <sstream>
 #include <iomanip>
+#include <vector>
 
 namespace max {
 
