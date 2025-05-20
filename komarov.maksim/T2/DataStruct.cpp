@@ -1,161 +1,99 @@
 #include "DataStruct.h"
-#include <cctype>
+#include <sstream>
 #include <iomanip>
-#include <iterator>
+#include <vector>
 
-namespace max
-{
+namespace max {
 
-iofmtguard::iofmtguard(std::ios & s)
-    : s_(s)
-    , flags_(s.flags())
-    , prec_(s.precision())
-    , fill_(s.fill())
-{}
-
-iofmtguard::~iofmtguard()
-{
-    s_.flags(flags_);
-    s_.precision(prec_);
-    s_.fill(fill_);
-}
-
-std::istream & operator>>(std::istream & in, DelimiterIO && d)
-{
-    std::istream::sentry ok(in);
-    if (!ok) return in;
-    char c;
-    in >> c;
-    if (c != d.exp) in.setstate(std::ios::failbit);
-    return in;
-}
-
-std::istream & operator>>(std::istream & in, DoubleIO && d)
-{
-    std::istream::sentry ok(in);
-    if (!ok) return in;
-    double tmp;
-    char suf;
-    in >> tmp >> suf;
-    if (in && (suf == 'd' || suf == 'D')) {
-        d.ref = tmp;
-    } else {
-        in.setstate(std::ios::failbit);
+class IOfmtGuard {
+    std::ios&           s_;
+    std::ios::fmtflags  f_;
+    std::streamsize     p_, w_;
+    char                fill_;
+public:
+    IOfmtGuard(std::ios& s)
+     : s_(s)
+     , f_(s.flags())
+     , p_(s.precision())
+     , w_(s.width())
+     , fill_(s.fill())
+    {}
+    ~IOfmtGuard() {
+        s_.flags(f_);
+        s_.precision(p_);
+        s_.width(w_);
+        s_.fill(fill_);
     }
-    return in;
-}
+};
 
-std::istream & operator>>(std::istream & in, ULLIO && d)
-{
-    std::istream::sentry ok(in);
-    if (!ok) return in;
-    unsigned long long tmp;
-    std::string suf;
-    in >> tmp >> suf;
-    for (auto & c : suf) {
-        c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
-    }
-    if (in && suf == "ull") {
-        d.ref = tmp;
-    } else {
-        in.setstate(std::ios::failbit);
-    }
-    return in;
-}
-
-std::istream & operator>>(std::istream & in, StringIO && d)
-{
-    std::istream::sentry ok(in);
-    if (!ok) return in;
-    char quote;
-    in >> quote;
-    if (!in || quote != '"') {
-        in.setstate(std::ios::failbit);
-        return in;
-    }
-    std::getline(in, d.ref, '"');
-    return in;
-}
-
-std::istream & operator>>(std::istream & in, LabelIO && d)
-{
-    std::istream::sentry ok(in);
-    if (!ok) return in;
-    std::string tok;
-    in >> tok;
-    if (!in || tok != d.exp) {
-        in.setstate(std::ios::failbit);
-    }
-    return in;
-}
-
-std::istream & operator>>(std::istream & in, DataStruct & d)
-{
-    std::istream::sentry ok(in);
-    if (!ok) return in;
-
-    DataStruct tmp{};
-    bool h1 = false, h2 = false, h3 = false;
-
-    in >> DelimiterIO{'('} >> DelimiterIO{':'};
-    while (in) {
-        std::string name;
-        in >> name;
-        if (!in) break;
-        if (name == ")") {
-            break;
+static bool parseLine(const std::string& line, DataStruct& tmp) {
+    std::vector<std::string> parts;
+    std::stringstream ss(line);
+    std::string chunk;
+    while (std::getline(ss, chunk, ':'))
+        if (!chunk.empty())
+            parts.push_back(chunk);
+    if (parts.size() != 5 || parts[0] != "(" || parts[4] != ")")
+        return false;
+    try {
+        for (int i = 1; i <= 3; ++i) {
+            std::istringstream ps(parts[i]);
+            std::string key; ps >> key;
+            if (key == "key1") {
+                std::string val; ps >> val;
+                if (val.back()!='d' && val.back()!='D') return false;
+                tmp.key1 = std::stod(val.substr(0, val.size()-1));
+            }
+            else if (key == "key2") {
+                std::string val; ps >> val;
+                if (val.size()<4 ||
+                   (val.substr(val.size()-3)!="ull" &&
+                    val.substr(val.size()-3)!="ULL"))
+                    return false;
+                tmp.key2 = std::stoull(val.substr(0, val.size()-3));
+            }
+            else if (key == "key3") {
+                auto first = parts[i].find('"');
+                auto last  = parts[i].rfind('"');
+                if (first==std::string::npos || last==first) return false;
+                tmp.key3 = parts[i].substr(first+1, last-first-1);
+            }
+            else return false;
         }
-
-        if (name == "key1") {
-            in >> DoubleIO{tmp.key1};
-            h1 = bool(in);
-        }
-        else if (name == "key2") {
-            in >> ULLIO{tmp.key2};
-            h2 = bool(in);
-        }
-        else if (name == "key3") {
-            in >> StringIO{tmp.key3};
-            h3 = bool(in);
-        }
-        else {
-            in.setstate(std::ios::failbit);
-        }
-
-        in >> DelimiterIO{':'};
+    } catch(...) {
+        return false;
     }
-    in >> DelimiterIO{')'};
+    return true;
+}
 
-    if (h1 && h2 && h3) {
-        d = tmp;
-    } else {
-        in.setstate(std::ios::failbit);
+std::istream& operator>>(std::istream& in, DataStruct& dst) {
+    std::string line;
+    while (true) {
+        if (!std::getline(in, line))
+            return in;
+        DataStruct tmp;
+        if (parseLine(line, tmp)) {
+            dst = tmp;
+            return in;
+        }
     }
-    return in;
 }
 
-std::ostream & operator<<(std::ostream & out, const DataStruct & d)
-{
-    std::ostream::sentry ok(out);
-    if (!ok) return out;
-    iofmtguard guard(out);
-
-    out << "(:";
-    out << "key1 "
-        << std::fixed << std::setprecision(6)
-        << d.key1
-        << 'd'
-        << ':';
-    out << "key2 "
-        << d.key2
-        << "ull"
-        << ':';
-    out << "key3 \""
-        << d.key3
-        << "\":";
-    out << ')';
-
-    return out;
+std::ostream& operator<<(std::ostream& os, DataStruct const& v) {
+    std::ostream::sentry sent(os);
+    if (!sent) return os;
+    IOfmtGuard g(os);
+    os << "(:key1 "
+       << std::fixed << std::setprecision(1) << v.key1 << 'd'
+       << ":key2 " << v.key2 << "ull"
+       << ":key3 \"" << v.key3 << "\":)";
+    return os;
 }
 
+bool cmpDataStruct(const DataStruct& a, const DataStruct& b) {
+    if (a.key1 != b.key1) return a.key1 < b.key1;
+    if (a.key2 != b.key2) return a.key2 < b.key2;
+    return a.key3.size() < b.key3.size();
 }
+
+} // namespace max
