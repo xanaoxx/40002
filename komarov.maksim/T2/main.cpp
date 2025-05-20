@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
-#include <iterator>
 #include <algorithm>
+#include <iterator>
 #include "DataStruct.h"
 
 using max::DataStruct;
