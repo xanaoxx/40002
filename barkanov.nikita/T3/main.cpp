@@ -25,7 +25,6 @@ int main(int argc, char* argv[]) {
     GeometryHandler cmdHandler;
 
     cmdHandler.fillMainVector(filename);
-    cmdHandler.printMainVector(std::cout);
 
     while (std::getline(std::cin, line)) {
         if (line.empty()) continue;
