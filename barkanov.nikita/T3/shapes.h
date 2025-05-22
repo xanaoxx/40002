@@ -3,6 +3,8 @@
 #define SHAPES_H
 
 #include <vector>
+#include <iterator>
+
 #include "delimiters.h"
 #include "iofmtguard.h"
 
