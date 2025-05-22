@@ -355,7 +355,6 @@ public:
                 out << "<ERROR: incorrect input>\n";
                 return;
             }
-            size_t curCount = 0;
 
             std::vector<mshapes::Polygon> newMainVector;
             newMainVector.reserve(mainVector.size());
