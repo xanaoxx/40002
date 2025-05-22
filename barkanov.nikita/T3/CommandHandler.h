@@ -193,7 +193,7 @@ public:
                     return;
                 }
                 if (!hasPolygons()) {
-                    out << "ERROR: atleast one polygon required.\n";
+                    out << '<' << UNKNOWN_COMMAND << ">\n";
                     return;
                 }
                 iofmtguard guard(out);
@@ -233,7 +233,7 @@ public:
                     return;
                 }
                 if (!hasPolygons()) {
-                    out << "ERROR: atleast one polygon required.\n";
+                    out << "<" << UNKNOWN_COMMAND << ">\n";
                     return;
                 }
                 iofmtguard guard(out);
@@ -247,7 +247,7 @@ public:
                     return;
                 }
                 if (!hasPolygons()) {
-                    out << "ERROR: atleast one polygon required.\n";
+                    out << "<" << UNKNOWN_COMMAND << ">\n";
                     return;
                 }
 
@@ -263,7 +263,7 @@ public:
                     return;
                 }
                 if (!hasPolygons()) {
-                    out << "ERROR: atleast one polygon required.\n";
+                    out << "<" << UNKNOWN_COMMAND << ">\n";
                     return;
                 }
                 iofmtguard guard(out);
@@ -277,7 +277,7 @@ public:
                     return;
                 }
                 if (!hasPolygons()) {
-                    out << "ERROR: atleast one polygon required.\n";
+                    out << "<" << UNKNOWN_COMMAND << ">\n";
                     return;
                 }
 
@@ -356,7 +356,7 @@ public:
         commands_["ECHO"] = [this](std::istream& in = std::cin, std::ostream& out = std::cout) {
             mshapes::Polygon polygon;
             in >> polygon;
-            if ((!in) || (in.peek() != EOF)) {
+            if (!in) {
                 out << "<" << E_INCORRECT_INPUT << '>' << '\n';
                 return;
             }
@@ -380,7 +380,6 @@ public:
             size_t duplicationCount = newMainVector.size() - mainVector.size();
             mainVector = std::move(newMainVector);
             out << duplicationCount << '\n';
-            printMainVector(std::cout);
             };
     }
 
