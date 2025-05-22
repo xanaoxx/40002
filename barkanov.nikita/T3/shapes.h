@@ -4,7 +4,6 @@
 
 #include <vector>
 #include <iterator>
-
 #include "delimiters.h"
 #include "iofmtguard.h"
 
@@ -74,7 +73,7 @@ namespace mshapes {
         size_t vertexNumber = 0;
 
         in >> vertexNumber;
-        if (!in || vertexNumber < MIN_VERTEX_AMOUNT) {
+        if ((!in) || (vertexNumber < MIN_VERTEX_AMOUNT)) {
             in.setstate(std::ios::failbit);
             return in;
         }

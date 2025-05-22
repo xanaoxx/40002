@@ -2,8 +2,9 @@
 #define GEOMETRYHANDLER_H
 
 //command aliases
-#define UNKNOWN_COMMAND "UNKNOWN COMMAND"
-#define E_INCORRECT_INPUT "ERROR: INCORRECT INPUT"
+#define UNKNOWN_COMMAND "INVALID COMMAND"
+#define E_INCORRECT_INPUT "INVALID COMMAND"
+//#define E_INCORRECT_INPUT "ERROR: INCORRECT INPUT"
 
 #include <iostream>
 #include <sstream>
@@ -175,7 +176,7 @@ public:
                 out << area << '\n';
             }
             else if (arg1 == "EVEN") {
-                if (!in.eof()) {
+                if (in.peek() != EOF) {
                     out << "<" << UNKNOWN_COMMAND << ">\n";
                     return;
                 }
@@ -187,7 +188,7 @@ public:
 
             }
             else if (arg1 == "MEAN") {
-                if (!in.eof()) {
+                if (in.peek() != EOF) {
                     out << "<" << UNKNOWN_COMMAND << ">\n";
                     return;
                 }
@@ -209,15 +210,16 @@ public:
                 catch (...) {
                     out << "<" << UNKNOWN_COMMAND << ">\n";
                 }
-                if (in.eof()) {
-
-                    iofmtguard guard(out);
-                    out << std::fixed << std::setprecision(1);
-
-                    out << getAreaWithVertexNum(num) << '\n';
-                }
-                else
+                if (num < 3 || in.peek() != EOF) {
                     out << "<" << UNKNOWN_COMMAND << ">\n";
+                    return;
+                }
+
+                iofmtguard guard(out);
+                out << std::fixed << std::setprecision(1);
+
+                out << getAreaWithVertexNum(num) << '\n';
+
                 return;
             }
 
@@ -315,12 +317,15 @@ public:
                 }
                 catch (...) {
                     out << "<" << UNKNOWN_COMMAND << ">\n";
+                    return;
                 }
-                if (in.eof()) {
-                    out << countPolygons(num) << '\n';
-                }
-                else
+                if (num < 3 || in.peek() != EOF) {
                     out << "<" << UNKNOWN_COMMAND << ">\n";
+                    return;
+                }
+
+                out << countPolygons(num) << '\n';
+
                 return;
             }
 
@@ -328,7 +333,7 @@ public:
         commands_["MAXSEQ"] = [this](std::istream& in = std::cin, std::ostream& out = std::cout) {
             mshapes::Polygon polygon;
             in >> polygon;
-            if (!in) {
+            if ((!in) || (in.peek() != EOF)) {
                 out << "<" << E_INCORRECT_INPUT << ">\n";
                 return;
             }
@@ -351,8 +356,8 @@ public:
         commands_["ECHO"] = [this](std::istream& in = std::cin, std::ostream& out = std::cout) {
             mshapes::Polygon polygon;
             in >> polygon;
-            if (!in) {
-                out << "<ERROR: incorrect input>\n";
+            if ((!in) || (in.peek() != EOF)) {
+                out << "<" << E_INCORRECT_INPUT << '>' << '\n';
                 return;
             }
 
