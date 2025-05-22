@@ -356,7 +356,7 @@ public:
         commands_["ECHO"] = [this](std::istream& in = std::cin, std::ostream& out = std::cout) {
             mshapes::Polygon polygon;
             in >> polygon;
-            if (!in) {
+            if ((!in) || (in.peek() != EOF)) {
                 out << "<" << E_INCORRECT_INPUT << '>' << '\n';
                 return;
             }
