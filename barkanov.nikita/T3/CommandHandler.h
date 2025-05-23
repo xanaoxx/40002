@@ -203,12 +203,13 @@ public:
                 out << area / mainVector.size() << '\n';
             }
             else {
-                double num = 0;
+                size_t num = 0;
                 try {
-                    num = std::stoi(arg1);
+                    num = std::stoul(arg1);
                 }
                 catch (...) {
                     out << "<" << UNKNOWN_COMMAND << ">\n";
+                    return;
                 }
                 if (num < 3 || in.peek() != EOF) {
                     out << "<" << UNKNOWN_COMMAND << ">\n";
@@ -228,7 +229,7 @@ public:
             std::string arg1;
             in >> arg1;
             if (arg1 == "AREA") {
-                if (!in.eof()) {
+                if (in.peek() != EOF) {
                     out << "<" << UNKNOWN_COMMAND << ">\n";
                     return;
                 }
@@ -242,7 +243,7 @@ public:
                 out << getMaxArea() << '\n';
             }
             else if (arg1 == "VERTEXES") {
-                if (!in.eof()) {
+                if (in.peek() != EOF) {
                     out << "<" << UNKNOWN_COMMAND << ">\n";
                     return;
                 }
@@ -258,7 +259,7 @@ public:
             std::string arg1;
             in >> arg1;
             if (arg1 == "AREA") {
-                if (!in.eof()) {
+                if (in.peek() != EOF) {
                     out << "<" << UNKNOWN_COMMAND << ">\n";
                     return;
                 }
@@ -272,7 +273,7 @@ public:
                 out << getMinArea() << '\n';
             }
             else if (arg1 == "VERTEXES") {
-                if (!in.eof()) {
+                if (in.peek() != EOF) {
                     out << "<" << UNKNOWN_COMMAND << ">\n";
                     return;
                 }
@@ -289,7 +290,7 @@ public:
             std::string arg1;
             in >> arg1;
             if (arg1 == "ODD") {
-                if (!in.eof()) {
+                if (in.peek() != EOF) {
                     out << "<" << UNKNOWN_COMMAND << ">\n";
                     return;
                 }
@@ -300,7 +301,7 @@ public:
                 out << countPolygons(false) << '\n';
             }
             else if (arg1 == "EVEN") {
-                if (!in.eof()) {
+                if (in.peek() != EOF) {
                     out << "<" << UNKNOWN_COMMAND << ">\n";
                     return;
                 }
@@ -330,17 +331,16 @@ public:
             }
 
             };
-        commands_["MAXSEQ"] = [this](std::istream& in = std::cin, std::ostream& out = std::cout) {
+        commands_["MAXSEQ"] = [this](std::istream& in, std::ostream& out) {
             mshapes::Polygon polygon;
             in >> polygon;
             if ((!in) || (in.peek() != EOF)) {
                 out << "<" << E_INCORRECT_INPUT << ">\n";
                 return;
             }
-            size_t curCount = 0;
             size_t maxCount = 0;
-            curCount = std::accumulate(mainVector.begin(), mainVector.end(), 0,
-                [curCount, &maxCount, polygon](size_t count, const auto& i) {
+            std::accumulate(mainVector.begin(), mainVector.end(), 0,
+                [&maxCount, polygon](size_t count, const auto& i) {
                     if (i == polygon) {
                         return static_cast<size_t>(count + 1);
                     }
@@ -353,7 +353,7 @@ public:
 
             out << maxCount << '\n';;
             };
-        commands_["ECHO"] = [this](std::istream& in = std::cin, std::ostream& out = std::cout) {
+        commands_["ECHO"] = [this](std::istream& in, std::ostream& out) {
             mshapes::Polygon polygon;
             in >> polygon;
             if ((!in) || (in.peek() != EOF)) {
