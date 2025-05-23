@@ -124,9 +124,7 @@ private:
         return 0;
     }
 
-
-public:
-    GeometryHandler() {
+    void registerCommands() {
         commands_["MANUAL"] = [this](std::istream& in, std::ostream& out) {
             std::vector<std::string> vec;
 
@@ -314,7 +312,7 @@ public:
             else {
                 size_t num = 0;
                 try {
-                    num = std::stoi(arg1);
+                    num = std::stoul(arg1);
                 }
                 catch (...) {
                     out << "<" << UNKNOWN_COMMAND << ">\n";
@@ -381,6 +379,20 @@ public:
             mainVector = std::move(newMainVector);
             out << duplicationCount << '\n';
             };
+    }
+
+
+
+public:
+
+    GeometryHandler() {
+        registerCommands();
+    }
+
+    void processCommandLine(std::istream& in) {
+        std::string cmd;
+        in >> cmd;
+        execute(cmd, in, std::cout);
     }
 
     void execute(const std::string& cmd, std::istream& in, std::ostream& out) {
