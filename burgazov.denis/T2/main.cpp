@@ -7,6 +7,8 @@
 #include <iomanip>
 #include <limits>
 #include <fstream>
+#include <sstream>
+#include <regex>
 
 const std::streamsize MAX_STREAM_SIZE = std::numeric_limits<std::streamsize>::max();
 
@@ -81,7 +83,19 @@ std::istream& operator>>(std::istream& in, DoubleSciIO&& dest) {
     if (!sentry) {
         return in;
     }
-    return in >> dest.ref;
+    std::string numStr;
+    std::getline(in, numStr, ':');
+    in.putback(':');
+
+    const std::regex sciPattern(R"(^[+-]?(\d+\.?\d*|\.\d+)[eE][+-]?\d+$)");
+    if (!std::regex_match(numStr, sciPattern)) {
+        in.setstate(std::ios::failbit);
+        return in;
+    }
+
+    std::istringstream iss(numStr);
+    iss >> dest.ref;
+    return in;
 }
 
 std::istream& operator>>(std::istream& in, CharIO&& dest) {
@@ -201,4 +215,5 @@ int main() {
         std::end(data),
         std::ostream_iterator<DataStruct>(std::cout, "\n")
     );
+    return 0;
 }
