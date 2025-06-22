@@ -163,13 +163,23 @@ private:
     std::basic_ios< char >::fmtflags fmt_;
 };
 
+std::string formatExponent(const std::string& numStr) {
+    std::regex exp_regex(R"(e([+-]?)(0*)([1-9]\d*))");
+    return std::regex_replace(numStr, exp_regex, "e$1$3");
+}
+
 std::ostream& operator<<(std::ostream& out, const DataStruct& src) {
     std::ostream::sentry sentry(out);
     if (!sentry) {
         return out;
     }
     iofmtguard fmtguard(out);
-    out << "(:key1 " << std::scientific << std::setprecision(1) << src.key1;
+
+    std::ostringstream oss;
+    oss << std::scientific << std::setprecision(1) << src.key1;
+    std::string numStr = oss.str();
+
+    out << "(:key1 " << formatExponent(numStr);
     out << ":key2 '" << src.key2;
     out << "':key3 \"" << src.key3 << "\":)";
     return out;
