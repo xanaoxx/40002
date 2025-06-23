@@ -1,19 +1,20 @@
 #include <iostream>
 #include <vector>
-#include <algorithm>
 #include <iterator>
+#include <algorithm>
+
 #include "DataStruct.h"
 
-using max::DataStruct;
-using max::cmpDataStruct;
+int main()
+{
+    std::vector< max::DataStruct > data;
 
-int main() {
-    std::vector<DataStruct> data;
-    std::copy(std::istream_iterator<DataStruct>(std::cin),
-              std::istream_iterator<DataStruct>(),
+    std::copy(std::istream_iterator< max::DataStruct >(std::cin),
+              std::istream_iterator< max::DataStruct >(),
               std::back_inserter(data));
-    std::sort(data.begin(), data.end(), cmpDataStruct);
+
+    std::sort(data.begin(), data.end(), max::cmpDataStruct);
+
     std::copy(data.begin(), data.end(),
-              std::ostream_iterator<DataStruct>(std::cout, "\n"));
-    return 0;
+              std::ostream_iterator< max::DataStruct >(std::cout, "\n"));
 }
