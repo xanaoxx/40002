@@ -78,7 +78,7 @@ namespace max
        >> DelimiterIO{ ':' } >> LabelIO{ "key1" } >> DoubleLiteralIO{ tmp.key1 }
        >> DelimiterIO{ ':' } >> LabelIO{ "key2" } >> UnsignedLongLongLiteralIO{ tmp.key2 }
        >> DelimiterIO{ ':' } >> LabelIO{ "key3" } >> StringIO{ tmp.key3 }
-       >> DelimiterIO{ ':' } >> DelimiterIO{ ')' };
+       >> DelimiterIO{ ')' };
 
     if (in) dst = tmp;
     return in;
