@@ -2,6 +2,7 @@
 #include <vector>
 #include <iterator>
 #include <algorithm>
+#include <limits>
 #include "DataStruct.h"
 
 int main()
@@ -9,9 +10,24 @@ int main()
     using max::DataStruct;
 
     std::vector<DataStruct> data;
-    std::copy(std::istream_iterator<DataStruct>(std::cin),
-              std::istream_iterator<DataStruct>(),
-              std::back_inserter(data));
+
+    while (true)
+    {
+        DataStruct tmp;
+        if (std::cin >> tmp)
+        {
+            data.push_back(tmp);
+        }
+        else if (std::cin.eof())
+        {
+            break;
+        }
+        else
+        {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
+    }
 
     std::sort(data.begin(), data.end(),
               [](const DataStruct& a, const DataStruct& b)
@@ -24,3 +40,4 @@ int main()
     std::copy(data.begin(), data.end(),
               std::ostream_iterator<DataStruct>(std::cout, "\n"));
 }
+
