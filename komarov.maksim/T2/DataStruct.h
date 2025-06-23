@@ -1,4 +1,3 @@
-#pragma once
 #ifndef MAX_DATASTRUCT_HPP
 #define MAX_DATASTRUCT_HPP
 
