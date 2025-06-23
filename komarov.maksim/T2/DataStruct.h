@@ -19,7 +19,7 @@ namespace max
     struct DoubleLiteralIO           { double            & ref; };
     struct UnsignedLongLongLiteralIO { unsigned long long & ref; };
     struct StringIO                  { std::string       & ref; };
-    struct LabelIO                   { std::string          exp; };
+    struct LabelIO                   { const std::string   exp; };
 
     class IOFmtGuard
     {
@@ -28,18 +28,17 @@ namespace max
         ~IOFmtGuard();
     private:
         std::basic_ios<char>& stream_;
-        std::streamsize        width_;
+        std::streamsize        w_, p_;
         char                   fill_;
-        std::streamsize        prec_;
-        std::ios::fmtflags     flags_;
+        std::ios::fmtflags     f_;
     };
 
-    std::istream& operator>>(std::istream& in, DelimiterIO&& dest);
-    std::istream& operator>>(std::istream& in, DoubleLiteralIO&& dest);
-    std::istream& operator>>(std::istream& in, UnsignedLongLongLiteralIO&& dest);
-    std::istream& operator>>(std::istream& in, StringIO&& dest);
-    std::istream& operator>>(std::istream& in, LabelIO&& dest);
-    std::istream& operator>>(std::istream& in, DataStruct& dest);
+    std::istream& operator>>(std::istream& in, DelimiterIO&&   d);
+    std::istream& operator>>(std::istream& in, DoubleLiteralIO&& d);
+    std::istream& operator>>(std::istream& in, UnsignedLongLongLiteralIO&& d);
+    std::istream& operator>>(std::istream& in, StringIO&& d);
+    std::istream& operator>>(std::istream& in, LabelIO&& d);
+    std::istream& operator>>(std::istream& in, DataStruct& dst);
 
     std::ostream& operator<<(std::ostream& out, const DataStruct& src);
 }
