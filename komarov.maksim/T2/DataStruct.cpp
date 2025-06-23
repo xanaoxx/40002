@@ -73,14 +73,28 @@ namespace max
     if (!s) return in;
 
     DataStruct tmp;
+    bool k1 = false, k2 = false, k3 = false;
 
-    in >> DelimiterIO{ '(' }
-       >> DelimiterIO{ ':' } >> LabelIO{ "key1" } >> DoubleLiteralIO{ tmp.key1 }
-       >> DelimiterIO{ ':' } >> LabelIO{ "key2" } >> UnsignedLongLongLiteralIO{ tmp.key2 }
-       >> DelimiterIO{ ':' } >> LabelIO{ "key3" } >> StringIO{ tmp.key3 }
-       >> DelimiterIO{ ')' };
+    in >> DelimiterIO{'('};
 
-    if (in) dst = tmp;
+    for (;;)
+    {
+      in >> DelimiterIO{':'};
+      if (in.peek() == ')') break;
+
+      std::string key;
+      in >> key;
+
+      if (key == "key1")      { in >> DoubleLiteralIO{tmp.key1}; k1 = true; }
+      else if (key == "key2") { in >> UnsignedLongLongLiteralIO{tmp.key2}; k2 = true; }
+      else if (key == "key3") { in >> StringIO{tmp.key3};        k3 = true; }
+      else                    { in.setstate(std::ios::failbit);  break;    }
+    }
+
+    in >> DelimiterIO{')'};
+
+    if (in && k1 && k2 && k3) dst = tmp;
+    else in.setstate(std::ios::failbit);
     return in;
   }
 
@@ -106,4 +120,5 @@ namespace max
     return out;
   }
 }
+
 
