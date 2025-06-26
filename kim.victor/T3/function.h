@@ -1,4 +1,3 @@
-#pragma once
 #ifndef FUNCTION_H
 #define FUNCTION_H
 
@@ -157,7 +156,7 @@ void handleArea(std::istringstream& iss, const std::vector<Polygon>& polygons, s
         int num = std::stoi(arg);
         double sum = std::accumulate(polygons.begin(), polygons.end(), 0.0,
             [num](double acc, const Polygon& p) {
-                return acc + (p.points.size() == num ? polygonArea(p) : 0);
+                return acc + (p.points.size() == static_cast<size_t>(num) ? polygonArea(p) : 0);
             });
         os << sum << std::endl;
     }
@@ -244,7 +243,7 @@ void handleCount(std::istringstream& iss, const std::vector<Polygon>& polygons, 
         }
         int num = std::stoi(arg);
         int count = std::count_if(polygons.begin(), polygons.end(),
-            [num](const Polygon& p) { return p.points.size() == num; });
+            [num](const Polygon& p) { return p.points.size() == static_cast<size_t>(num); });
         os << count << std::endl;
     }
 }
