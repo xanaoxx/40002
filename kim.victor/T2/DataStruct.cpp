@@ -97,8 +97,7 @@ namespace dStruct
         std::ostream::sentry sentry(out);
         if (!sentry) return out;
         iofmtguard fmtguard(out);
-        
-        out << "(:key1 " << src.key1 << "ll";   
+        out << "(:key1 " << src.key1 << "ll";
         out << ":key2 (:N " << src.key2.first << ":D " << src.key2.second << ":)";
         out << ":key3 \"" << src.key3 << "\":)";
         return out;
