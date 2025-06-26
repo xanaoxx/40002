@@ -1,4 +1,4 @@
-#ifndef FUNCTION_H
+п»ї#ifndef FUNCTION_H
 #define FUNCTION_H
 
 #include <iostream>
@@ -20,7 +20,7 @@ public:
 struct Point {
     int x, y;
     bool is_valid() const {
-        return true; // Все точки считаются валидными по умолчанию
+        return true;
     }
 };
 
