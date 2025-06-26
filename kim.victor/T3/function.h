@@ -19,6 +19,9 @@ public:
 
 struct Point {
     int x, y;
+    bool is_valid() const {
+        return true; // ¬се точки считаютс€ валидными по умолчанию
+    }
 };
 
 struct Polygon {
@@ -112,14 +115,12 @@ void handleArea(std::istringstream& iss, const std::vector<Polygon>& polygons, s
     if (!(iss >> arg))
     {
         throw InvalidCommandException();
-        return;
     }
     if (arg == "EVEN" || arg == "ODD")
     {
         if (!hasNoMoreArguments(iss))
         {
             throw InvalidCommandException();
-            return;
         }
         bool wantEven = (arg == "EVEN");
         double sum = std::accumulate(polygons.begin(), polygons.end(), 0.0,
@@ -131,29 +132,22 @@ void handleArea(std::istringstream& iss, const std::vector<Polygon>& polygons, s
         os << sum << std::endl;
     }
     else if (arg == "MEAN") {
-        if (!hasNoMoreArguments(iss))
+        if (!hasNoMoreArguments(iss) || polygons.empty())
         {
             throw InvalidCommandException();
-            return;
         }
-        if (polygons.empty())
-            os << "0.0" << std::endl;
-        else
-        {
-            double total = std::accumulate(polygons.begin(), polygons.end(), 0.0,
-                [](double acc, const Polygon& p) { return acc + polygonArea(p); });
-            os << (total / polygons.size()) << std::endl;
-        }
+        double total = std::accumulate(polygons.begin(), polygons.end(), 0.0,
+            [](double acc, const Polygon& p) { return acc + polygonArea(p); });
+        os << (total / polygons.size()) << std::endl;
     }
     else
     {
         bool isNum = std::all_of(arg.begin(), arg.end(), ::isdigit);
-        if (!isNum || !hasNoMoreArguments(iss))
+        int num = isNum ? std::stoi(arg) : -1;
+        if (!isNum || num < 3 || !hasNoMoreArguments(iss))
         {
             throw InvalidCommandException();
-            return;
         }
-        int num = std::stoi(arg);
         double sum = std::accumulate(polygons.begin(), polygons.end(), 0.0,
             [num](double acc, const Polygon& p) {
                 return acc + (p.points.size() == static_cast<size_t>(num) ? polygonArea(p) : 0);
@@ -165,44 +159,33 @@ void handleArea(std::istringstream& iss, const std::vector<Polygon>& polygons, s
 
 void handleExtremum(std::istringstream& iss, const std::vector<Polygon>& polygons, std::ostream& os, bool isMax) {
     std::string arg;
-    if (!(iss >> arg) || !hasNoMoreArguments(iss)) {
-        throw InvalidCommandException();;
-        return;
+    if (!(iss >> arg) || !hasNoMoreArguments(iss) || polygons.empty()) {
+        throw InvalidCommandException();
     }
     if (arg == "AREA") {
-        if (polygons.empty()) {
-            os << "0.0" << std::endl;
+        auto compareArea = [](const Polygon& a, const Polygon& b) {
+            return polygonArea(a) < polygonArea(b);
+            };
+        if (isMax) {
+            auto it = std::max_element(polygons.begin(), polygons.end(), compareArea);
+            os << polygonArea(*it) << std::endl;
         }
         else {
-            auto compareArea = [](const Polygon& a, const Polygon& b) {
-                return polygonArea(a) < polygonArea(b);
-                };
-            if (isMax) {
-                auto it = std::max_element(polygons.begin(), polygons.end(), compareArea);
-                os << polygonArea(*it) << std::endl;
-            }
-            else {
-                auto it = std::min_element(polygons.begin(), polygons.end(), compareArea);
-                os << polygonArea(*it) << std::endl;
-            }
+            auto it = std::min_element(polygons.begin(), polygons.end(), compareArea);
+            os << polygonArea(*it) << std::endl;
         }
     }
     else if (arg == "VERTEXES") {
-        if (polygons.empty()) {
-            os << "0" << std::endl;
+        auto compareVertexes = [](const Polygon& a, const Polygon& b) {
+            return a.points.size() < b.points.size();
+            };
+        if (isMax) {
+            auto it = std::max_element(polygons.begin(), polygons.end(), compareVertexes);
+            os << it->points.size() << std::endl;
         }
         else {
-            auto compareVertexes = [](const Polygon& a, const Polygon& b) {
-                return a.points.size() < b.points.size();
-                };
-            if (isMax) {
-                auto it = std::max_element(polygons.begin(), polygons.end(), compareVertexes);
-                os << it->points.size() << std::endl;
-            }
-            else {
-                auto it = std::min_element(polygons.begin(), polygons.end(), compareVertexes);
-                os << it->points.size() << std::endl;
-            }
+            auto it = std::min_element(polygons.begin(), polygons.end(), compareVertexes);
+            os << it->points.size() << std::endl;
         }
     }
     else {
@@ -217,14 +200,12 @@ void handleCount(std::istringstream& iss, const std::vector<Polygon>& polygons, 
     if (!(iss >> arg))
     {
         throw InvalidCommandException();
-        return;
     }
     if (arg == "EVEN" || arg == "ODD")
     {
         if (!hasNoMoreArguments(iss))
         {
             throw InvalidCommandException();
-            return;
         }
         bool wantEven = (arg == "EVEN");
         int count = std::count_if(polygons.begin(), polygons.end(),
@@ -236,12 +217,11 @@ void handleCount(std::istringstream& iss, const std::vector<Polygon>& polygons, 
     else
     {
         bool isNum = std::all_of(arg.begin(), arg.end(), ::isdigit);
-        if (!isNum || !hasNoMoreArguments(iss))
+        int num = isNum ? std::stoi(arg) : -1;
+        if (!isNum || num < 3 || !hasNoMoreArguments(iss))
         {
             throw InvalidCommandException();
-            return;
         }
-        int num = std::stoi(arg);
         int count = std::count_if(polygons.begin(), polygons.end(),
             [num](const Polygon& p) { return p.points.size() == static_cast<size_t>(num); });
         os << count << std::endl;
@@ -257,10 +237,9 @@ void handleRects(const std::vector<Polygon>& polygons, std::ostream& os = std::c
 void handleSame(std::istringstream& iss, const std::vector<Polygon>& polygons, std::ostream& os = std::cout)
 {
     int n;
-    if (!(iss >> n) || n < 1)
+    if (!(iss >> n) || n < 3)
     {
         throw InvalidCommandException();
-        return;
     }
     Polygon target;
     for (int i = 0; i < n; ++i)
@@ -271,14 +250,12 @@ void handleSame(std::istringstream& iss, const std::vector<Polygon>& polygons, s
             !(iss >> c) || c != ';' || !(iss >> y) ||
             !(iss >> c) || c != ')') {
             throw InvalidCommandException();
-            return;
         }
         target.points.emplace_back(Point{ x, y });
     }
     if (!hasNoMoreArguments(iss))
     {
         throw InvalidCommandException();
-        return;
     }
 
     int count = std::count_if(polygons.begin(), polygons.end(),
