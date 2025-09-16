@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
-#include <sstream> //string stream
+#include <sstream>
 
 #include "shapes.h"
 #include "CommandHandler.h"

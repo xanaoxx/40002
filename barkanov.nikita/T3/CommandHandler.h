@@ -351,7 +351,7 @@ private:
 
             out << maxCount << '\n';;
             };
-        commands_["ECHO"] = [this](std::istream& in, std::ostream& out) {
+        commands_["ECHO"] = [this](std::istream& in, std::ostream& out) { //need to change
             mshapes::Polygon polygon;
             in >> polygon;
             if ((!in) || (in.peek() != EOF)) {
