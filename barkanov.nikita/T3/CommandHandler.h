@@ -34,18 +34,6 @@ private:
         return !mainVector.empty();
     }
 
-    double getAreaSum(bool isEven, bool getAll = false) const {
-        return std::accumulate(mainVector.begin(), mainVector.end(), 0.0,
-            [isEven, getAll](double sum, const auto& polygon) {
-                if ((isEven == mshapes::isVertexCountEven(polygon)) || getAll) {
-                    return sum + mshapes::getArea(polygon);
-                }
-                return sum;
-            }
-
-        );
-    }
-
     size_t countPolygons(bool isEven) const {
         return std::count_if(mainVector.begin(), mainVector.end(),
             [isEven](const auto& i) {
@@ -74,7 +62,7 @@ private:
                 return mshapes::getArea(i1) < mshapes::getArea(i2);
             }
         );
-        if (it != mainVector.end()) {
+        if (it != mainVector.end()) {   //if vector is empty
             return mshapes::getArea(*it);
         }
         return 0;
@@ -124,6 +112,69 @@ private:
         return 0;
     }
 
+    double getAreaSum(bool isEven, bool getAll = false) const {
+        return std::accumulate(mainVector.begin(), mainVector.end(), 0.0,
+            [isEven, getAll](double sum, const auto& polygon) {
+                if ((isEven == mshapes::isVertexCountEven(polygon)) || getAll) {
+                    return sum + mshapes::getArea(polygon);
+                }
+                return sum;
+            }
+
+        );
+    }
+
+    size_t getMaxSequence(const mshapes::Polygon& polygon) const {
+        size_t maxCount = 0;
+        std::accumulate(mainVector.begin(), mainVector.end(), 0,
+            [&maxCount, polygon](size_t count, const auto& i) {
+                if (i == polygon) {
+                    return static_cast<size_t>(count + 1);
+                }
+                else {
+                    maxCount = (maxCount < count) ? count : maxCount;
+                    return static_cast<size_t>(0);
+                }
+            }
+        );
+        return maxCount;
+    }
+
+    size_t getEchoResult(const mshapes::Polygon& polygon, std::ostream& out) {
+        //in this function I declared ECHO command logic in terms of counting difference
+        std::vector<mshapes::Polygon> newMainVector;
+        try {
+            newMainVector = echoModify(polygon);
+        }
+        catch (const std::exception& e) {
+            out << "<ERROR: " << e.what() << '>' << '\n';
+            return -1;
+        }
+
+
+        size_t duplicationCount = newMainVector.size() - mainVector.size();
+        mainVector = std::move(newMainVector);
+
+        return duplicationCount;
+    }
+
+    std::vector<mshapes::Polygon> echoModify(const mshapes::Polygon& polygon) {
+        //in this function I declared ECHO command logic in terms of vector modifying
+        std::vector<mshapes::Polygon> newMainVector;
+        newMainVector.reserve(mainVector.size());
+
+        std::accumulate(mainVector.begin(), mainVector.end(), std::ref(newMainVector),
+            [&polygon](std::vector<mshapes::Polygon>& acc, const auto& curPolygon) -> std::vector<mshapes::Polygon>&{
+                acc.push_back(curPolygon);
+                if (curPolygon == polygon)
+                    acc.push_back(curPolygon);
+                return acc;
+            }
+        );
+
+        return newMainVector;
+    }
+
     void registerCommands() {
         commands_["MANUAL"] = [this](std::istream& in, std::ostream& out) {
             std::vector<std::string> vec;
@@ -155,7 +206,7 @@ private:
 
             iofmtguard guard(out);
             out << std::fixed << std::setprecision(1);
-            out << mshapes::getArea(polygon) << std::endl;
+            out << mshapes::getArea(polygon) << '\n';
             };
         commands_["AREA"] = [this](std::istream& in, std::ostream& out) {
             mshapes::Polygon polygon;
@@ -336,22 +387,12 @@ private:
                 out << "<" << E_INCORRECT_INPUT << ">\n";
                 return;
             }
-            size_t maxCount = 0;
-            std::accumulate(mainVector.begin(), mainVector.end(), 0,
-                [&maxCount, polygon](size_t count, const auto& i) {
-                    if (i == polygon) {
-                        return static_cast<size_t>(count + 1);
-                    }
-                    else {
-                        maxCount = (maxCount < count) ? count : maxCount;
-                        return static_cast<size_t>(0);
-                    }
-                }
-            );
 
-            out << maxCount << '\n';;
+            size_t result = getMaxSequence(polygon);
+
+            out << result << '\n';;
             };
-        commands_["ECHO"] = [this](std::istream& in, std::ostream& out) { //need to change
+        commands_["ECHO"] = [this](std::istream& in, std::ostream& out) {
             mshapes::Polygon polygon;
             in >> polygon;
             if ((!in) || (in.peek() != EOF)) {
@@ -359,24 +400,8 @@ private:
                 return;
             }
 
-            std::vector<mshapes::Polygon> newMainVector;
-            newMainVector.reserve(mainVector.size());
-            try {
-                std::accumulate(mainVector.begin(), mainVector.end(), std::ref(newMainVector),
-                    [&polygon](std::vector<mshapes::Polygon>& acc, const auto& curPolygon) -> std::vector<mshapes::Polygon>&{
-                        acc.push_back(curPolygon);
-                        if (curPolygon == polygon)
-                            acc.push_back(curPolygon);
-                        return acc;
-                    }
-                );
-            }
-            catch (const std::exception& e) {
-                out << "<ERROR: " << e.what() << '>' << '\n';
-                return;
-            }
-            size_t duplicationCount = newMainVector.size() - mainVector.size();
-            mainVector = std::move(newMainVector);
+            size_t duplicationCount = getEchoResult(polygon, out);
+
             out << duplicationCount << '\n';
             };
     }
@@ -389,10 +414,10 @@ public:
         registerCommands();
     }
 
-    void processCommandLine(std::istream& in) {
+    void processCommandLine(std::istream& in, std::ostream& out) {
         std::string cmd;
         in >> cmd;
-        execute(cmd, in, std::cout);
+        execute(cmd, in, out);
     }
 
     void execute(const std::string& cmd, std::istream& in, std::ostream& out) {
@@ -411,7 +436,7 @@ public:
 
         if (!file.is_open())
         {
-            throw std::invalid_argument("ERROR: Wrong name size!");
+            throw std::invalid_argument("ERROR: Wrong file name!");
         }
 
         std::vector< mshapes::Polygon > shapes;

@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <iterator>
+#include <algorithm>
 #include "delimiters.h"
 #include "iofmtguard.h"
 
