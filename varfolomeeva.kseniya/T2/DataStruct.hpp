@@ -57,6 +57,7 @@ namespace dStruct
         std::streamsize width_;
         char fill_;
         std::streamsize precision_;
+        std::basic_ios<char>::fmtflags fmt_;
     };
 }
 
