@@ -58,6 +58,9 @@ namespace dStruct
         char fill_;
         std::streamsize precision_;
         std::basic_ios<char>::fmtflags fmt_;
+
+       std::istream& operator>>(std::istream& in,DelimiterIO&& dest);
+       std::istream& operator>>(std::istream& in,SllLit&& key);
     };
 }
 
