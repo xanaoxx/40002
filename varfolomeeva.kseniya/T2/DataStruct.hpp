@@ -20,29 +20,44 @@ namespace dStruct
         long long key2;
         std::string key3;
     };
-struct DelimiterIO
-{
-    char exp;
-};
 
-struct SllLit
-{
-    long long& value;
-};
+    struct DelimiterIO
+    {
+        char exp;
+    };
 
-struct DBLLit
-{
-    double& value;
-};
+    struct SllLit
+    {
+        long long& value;
+    };
 
-struct StrKey
-{
-    std::string& str;
-};
+    struct DBLLit
+    {
+        double& value;
+    };
 
-struct StringIO
-{
-    const char* expected;
-};
+    struct StrKey
+    {
+        std::string& str;
+    };
+
+    struct StringIO
+    {
+        const char* expected;
+    };
+
+
+    class iofmtguard
+    {
+    public:
+        iofmtguard(std::basic_ios<char>& s);
+        ~iofmtguard();
+    private:
+        std::basic_ios<char>& s_;
+        std::streamsize width_;
+        char fill_;
+        std::streamsize precision_;
+    };
 }
+
 #endif
