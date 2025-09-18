@@ -20,5 +20,29 @@ namespace dStruct
         long long key2;
         std::string key3;
     };
+struct DelimiterIO
+{
+    char exp;
+};
+
+struct SllLit
+{
+    long long& value;
+};
+
+struct DBLLit
+{
+    double& value;
+};
+
+struct StrKey
+{
+    std::string& str;
+};
+
+struct StringIO
+{
+    const char* expected;
+};
 }
 #endif
