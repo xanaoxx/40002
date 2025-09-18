@@ -58,15 +58,16 @@ namespace dStruct
         char fill_;
         std::streamsize precision_;
         std::basic_ios<char>::fmtflags fmt_;
-
-        std::istream& operator>>(std::istream& in, DelimiterIO&& dest);
-        std::istream& operator>>(std::istream& in, SllLit&& key);
-        std::istream& operator>>(std::istream& in, DBLLit&& key);
-        std::istream& operator>>(std::istream& in, StrKey&& key);
-        std::istream& operator>>(std::istream& in, const StringIO&& dest);
-        std::istream& operator>>(std::istream& in, DataStruct& dest);
-        std::ostream& operator<<(std::ostream& out, const DataStruct& dest);
     };
+
+    std::istream& operator>>(std::istream& in, DelimiterIO&& dest);
+    std::istream& operator>>(std::istream& in, SllLit&& key);
+    std::istream& operator>>(std::istream& in, DBLLit&& key);
+    std::istream& operator>>(std::istream& in, StrKey&& key);
+    std::istream& operator>>(std::istream& in, const StringIO&& dest);
+    std::istream& operator>>(std::istream& in, DataStruct& dest);
+    std::ostream& operator<<(std::ostream& out, const DataStruct& dest);
 }
 
 #endif
+
