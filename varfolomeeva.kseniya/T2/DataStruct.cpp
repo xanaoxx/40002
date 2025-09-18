@@ -35,6 +35,8 @@ namespace dStruct
         out << ":key1 " << value.key1 << "d";
         out << ":key2 " << value.key2 << "ll";
         out << ":key3 \"" << value.key3 << "\":)";
+        
+       return out;
     }
 
     std::istream& operator>>(std::istream& in, DBLLit&& key) {
