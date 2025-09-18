@@ -136,5 +136,5 @@ namespace dStruct
         s_.precision(precision_);
         s_.flags(fmt_);
     }
-
+}
 
