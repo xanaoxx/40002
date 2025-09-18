@@ -6,24 +6,28 @@
 
 int main()
 {
-    std::vector<dataStruct::DataStruct> data;
+    using dataStruct::DataStruct;
+    std::vector<DataStruct> dataVector;
 
-    while (std::cin.peek() != EOF)
+    while (!std::cin.eof())
     {
-        dataStruct::DataStruct temp;
-        if (std::cin >> temp)
-        {
-            data.push_back(temp);
-        }
-        else
+        std::copy(
+            std::istream_iterator<DataStruct>(std::cin),
+            std::istream_iterator<DataStruct>(),
+            std::back_inserter(dataVector)
+        );
+
+        if (!std::cin && !std::cin.eof())
         {
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         }
     }
 
-    std::sort(data.begin(), data.end(), dataStruct::compareData);
+    std::sort(dataVector.begin(), dataVector.end(), dataStruct::compareData);
 
-    std::copy(data.begin(), data.end(),
-        std::ostream_iterator<dataStruct::DataStruct>(std::cout, "\n"));
+    std::copy(dataVector.begin(), dataVector.end(),
+        std::ostream_iterator<DataStruct>(std::cout, "\n"));
+
+    return 0;
 }

@@ -54,6 +54,11 @@ namespace dataStruct
             return in;
         }
 
+        char c;
+        in >> std::noskipws >> c >> std::skipws >> DelimiterIO{ '\'' };
+        dest.ref = c;
+        return in;
+
         in >> dest.ref >> DelimiterIO{ '\'' };
         return in;
     }
@@ -102,13 +107,12 @@ namespace dataStruct
         bool flagKey3 = false;
 
         in >> sep{ '(' };
+
         std::string label;
         while (!flagKey1 || !flagKey2 || !flagKey3)
         {
             if (!in)
-            {
                 break;
-            }
 
             if (in >> sep{ ':' } >> label)
             {
@@ -135,11 +139,22 @@ namespace dataStruct
         }
 
         in >> sep{ ':' } >> sep{ ')' };
-        if (in && flagKey1 && flagKey2 && flagKey3)
+
+        if (!in || !flagKey1 || !flagKey2 || !flagKey3)
         {
-            dest = input;
+            in.setstate(std::ios::failbit);
+            return in;
         }
+
+        if (input.key2.second == 0 || input.key1 == '\0')
+        {
+            in.setstate(std::ios::failbit);
+            return in;
+        }
+
+        dest = input;
         return in;
+
     }
 
     std::ostream& operator<<(std::ostream& out, const DataStruct& src)
