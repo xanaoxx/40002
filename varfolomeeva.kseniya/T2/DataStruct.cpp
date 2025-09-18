@@ -35,8 +35,8 @@ namespace dStruct
         out << ":key1 " << value.key1 << "d";
         out << ":key2 " << value.key2 << "ll";
         out << ":key3 \"" << value.key3 << "\":)";
-        
-       return out;
+
+        return out;
     }
 
     std::istream& operator>>(std::istream& in, DBLLit&& key) {
@@ -126,4 +126,15 @@ namespace dStruct
         return in;
     }
 
-}
+    iofmtguard::iofmtguard(std::basic_ios<char>& s)
+        : s_(s), width_(s.width()), fill_(s.fill()), precision_(s.precision()),
+        fmt_(s.flags()) {}
+
+    iofmtguard::~iofmtguard() {
+        s_.width(width_);
+        s_.fill(fill_);
+        s_.precision(precision_);
+        s_.flags(fmt_);
+    }
+
+
