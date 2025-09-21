@@ -1,4 +1,13 @@
 #include <iostream>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <iterator>
+#include <map>
+#include <functional>
+#include <limits>
+#include "figures.hpp"
+#include "commands.hpp"
 int main()
 {
     using namespace varfolomeeva;
