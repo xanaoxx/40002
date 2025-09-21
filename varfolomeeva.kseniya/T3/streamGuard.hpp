@@ -12,6 +12,7 @@ namespace varfolomeeva
     private:
         std::basic_ios< char >& s_;
         std::streamsize precision_;
+        std::basic_ios< char >::fmtflags flags_;
     };
 }
 #endif
