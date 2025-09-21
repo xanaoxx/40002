@@ -20,4 +20,4 @@ namespace varfolomeeva
     bool operator!=(const Polygon& p1, const Polygon& p2);
     bool operator==(const Polygon& p1, const Polygon& p2);
 }
-
+#endif
