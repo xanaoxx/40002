@@ -42,3 +42,28 @@ struct MaxSeqCounter
     size_t maxSeqLength;
     bool operator()(const varfolomeeva::Polygon& poly, const varfolomeeva::Polygon& data);
 };
+std::pair< varfolomeeva::Point, varfolomeeva::Point > makePair(const varfolomeeva::Point& p1, const varfolomeeva::Point& p2)
+{
+    return std::make_pair(p1, p2);
+}
+
+double shoelaceFormula(double acc, const std::pair< varfolomeeva::Point, varfolomeeva::Point >& points)
+{
+    double area = points.first.x * points.second.y - points.second.x * points.first.y;
+    return acc + area;
+}
+
+double sumArea(double acc, const varfolomeeva::Polygon& poly)
+{
+    return acc + calcArea(poly);
+}
+
+double calcArea(const varfolomeeva::Polygon& poly)
+{
+    std::vector< std::pair< varfolomeeva::Point, varfolomeeva::Point > > pointPairs;
+    std::transform(poly.points.begin(), poly.points.end() - 1, poly.points.begin() + 1,
+        std::back_inserter(pointPairs), makePair);
+    pointPairs.emplace_back(poly.points.back(), poly.points.front());
+    double areaSum = std::accumulate(pointPairs.begin(), pointPairs.end(), 0.0, shoelaceFormula);
+    return 0.5 * std::abs(areaSum);
+}
