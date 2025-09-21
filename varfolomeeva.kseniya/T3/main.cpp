@@ -8,7 +8,7 @@
 #include <limits>
 #include "figures.hpp"
 #include "commands.hpp"
-int main()
+int main(int argc, const char* argv[])
 {
     using namespace varfolomeeva;
 if (argc != 2)
