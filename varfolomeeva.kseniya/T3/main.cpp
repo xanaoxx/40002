@@ -32,4 +32,20 @@ cmds["MAX"] = std::bind(doMax, std::ref(polygons), _1, _2);
 cmds["MIN"] = std::bind(doMin, std::ref(polygons), _1, _2);
 cmds["COUNT"] = std::bind(doCount, std::ref(polygons), _1, _2);
 cmds["RMECHO"] = std::bind(doRmecho, std::ref(polygons), _1, _2);
+
+std::string command = "";
+while (std::cin >> command)
+{
+    try
+    {
+        cmds.at(command)(std::cin, std::cout);
+    }
+    catch (...)
+    {
+        std::cout << "<INVALID COMMAND>\n";
+    }
+    std::cin.clear();
+    std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
+}
+return 0;
 }
